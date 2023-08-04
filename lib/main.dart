@@ -1,6 +1,8 @@
-import 'package:expenses/models/transaction.dart';
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'components/transaction_form.dart';
+import 'components/transaction_list.dart';
+import 'models/transaction.dart';
 
 void main() {
   runApp(const ExpensesApp());
@@ -11,14 +13,21 @@ class ExpensesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       home: MyHomePage()
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-     MyHomePage({super.key});
+class MyHomePage extends StatefulWidget {
+    const  MyHomePage({super.key} );
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+
 
   final _transactions = [
     Transaction(
@@ -35,117 +44,63 @@ class MyHomePage extends StatelessWidget {
     ),
   ];
 
+
+  void _addTransaction(String title, double value) {
+    final newTransaction = Transaction(
+      id: Random().nextDouble().toString(), 
+      title: title, 
+      value: value, 
+      date: DateTime.now()
+    );
+
+    setState(() {
+      _transactions.add(newTransaction);
+    });
+    Navigator.pop(context);
+  }
+
+  void _openTransactionFormModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context, 
+      builder: (_) {
+        return TransactionForm(onSubmit: _addTransaction);
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Despesas Pessoais"),
         centerTitle: true,
-      ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(
-            child: Card(
-              color: Colors.green,
-              elevation: 5,
-              child: Text("Gráfico"),
-            ),
-          ),
-          Column(
-            children: _transactions.map((transaction) {
-              return Card(
-                elevation: 5,
-                child: Row(
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 10
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          width: 2,
-                          color: Colors.green
-                        )
-                      ),
-                      padding: const EdgeInsets.all(10),
-                      child: Text(
-                        "R\$ ${transaction.value.toStringAsFixed(2)}",
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.green
-                        ),
-                      )
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          transaction.title,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16
-                            ),
-                          ),
-                        Text(
-                          DateFormat("d MMM y").format(transaction.date),
-                          style: const TextStyle(
-                            color: Colors.grey
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-          Card(
-            elevation: 5,
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  TextFormField(
-                    
-                    decoration: const InputDecoration(
-                      labelText: "Título",
-                      labelStyle: TextStyle(color: Colors.black),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black)
-                      )
-                    ),
-                  ),
-                  TextFormField(
-                    decoration: const InputDecoration(
-                      labelText: "Valor (R\$)",
-                      labelStyle: TextStyle(color: Colors.black),
-                      
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black)
-                      )
-                    ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {},
-                        style: const ButtonStyle(
-                          overlayColor: MaterialStatePropertyAll(Color(0x0f008000))
-                        ),
-                        child: const Text("Nova Transação", style: TextStyle(color: Colors.green),)
-                      ),
-                    ],
-                  )
-                ],
-              ),
-            ),
+        actions: [
+          IconButton(
+            onPressed: () => _openTransactionFormModal(context),
+            icon: const Icon(Icons.add)
           )
         ],
-      )
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(
+              child: Card(
+                color: Colors.green,
+                elevation: 5,
+                child: Text("Gráfico"),
+              ),
+            ),
+            TransactionList(transactions: _transactions),
+            FloatingActionButton(
+              onPressed: () => _openTransactionFormModal(context),
+              child: const Icon(Icons.add),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
