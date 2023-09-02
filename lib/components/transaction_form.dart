@@ -28,50 +28,47 @@ class _TransactionFormState extends State<TransactionForm> {
 
   @override
   Widget build(BuildContext context) {
-  return Card(
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          children: [
-            TextFormField(
-              controller: titleController,
-              onFieldSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: "Título",
-                labelStyle: TextStyle(color: Colors.black),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black)
-                )
-              ),
-            ),
-            TextFormField(
-              controller: valueController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              onFieldSubmitted: (_) => _submitForm(),
-              decoration: const InputDecoration(
-                labelText: "Valor (R\$)",
-                labelStyle: TextStyle(color: Colors.black),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.black)
-                )
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  onPressed: _submitForm,
-                  style: const ButtonStyle(
-                    overlayColor: MaterialStatePropertyAll(Color(0x0f008000))
-                  ),
-                  child: const Text("Nova Transação", style: TextStyle(color: Colors.green),)
-                ),
-              ],
+  return Padding(
+    padding: const EdgeInsets.all(10),
+    child: Column(
+      children: [
+        TextFormField(
+          controller: titleController,
+          onFieldSubmitted: (_) => _submitForm(),
+          decoration: const InputDecoration(
+            labelText: "Título",
+            labelStyle: TextStyle(color: Colors.black),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.black)
             )
-          ],
+          ),
         ),
-      ),
-    );
+        TextFormField(
+          controller: valueController,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          onFieldSubmitted: (_) => _submitForm(),
+          decoration: const InputDecoration(
+            labelText: "Valor (R\$)",
+            labelStyle: TextStyle(color: Colors.black),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.black)
+            )
+          ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TextButton(
+              onPressed: _submitForm,
+              style: const ButtonStyle(
+                overlayColor: MaterialStatePropertyAll(Color(0x0f008000))
+              ),
+              child: const Text("Nova Transação", style: TextStyle(color: Colors.green),)
+            ),
+          ],
+        )
+      ],
+    ),
+  );
   }
 }

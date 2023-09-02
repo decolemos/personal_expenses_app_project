@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:expenses/components/chart.dart';
 import 'package:flutter/material.dart';
 import 'components/transaction_form.dart';
 import 'components/transaction_list.dart';
@@ -13,8 +14,15 @@ class ExpensesApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MyHomePage()
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: const MyHomePage(),
+      theme: ThemeData(
+        primarySwatch: Colors.green,
+        colorScheme: ColorScheme.fromSwatch().copyWith(
+          secondary: Colors.black
+        )
+      ),
     );
   }
 }
@@ -29,21 +37,34 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
 
-  final _transactions = [
+  final List<Transaction> _transactions = [
+    Transaction(
+      id: "000", 
+      title: "Conta Antiga", 
+      value: 400.00, 
+      date: DateTime.now().subtract(const Duration(days: 33))
+    ),
     Transaction(
       id: "001", 
       title: "Novo Tênis de corrida", 
       value: 310.76, 
-      date: DateTime.now()
+      date: DateTime.now().subtract(const Duration(days: 3))
     ),
     Transaction(
       id: "002", 
       title: "Conta de luz", 
       value: 211.30, 
-      date: DateTime.now()
+      date: DateTime.now().subtract(const Duration(days: 4))
     ),
   ];
 
+  List<Transaction> get _recentTransactions {
+    return _transactions.where((transaction) {
+      return transaction.date.isAfter(DateTime.now().subtract(
+        const Duration(days: 7)
+      ));
+    }).toList();
+  }
 
   void _addTransaction(String title, double value) {
     final newTransaction = Transaction(
@@ -84,15 +105,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SingleChildScrollView(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const SizedBox(
-              child: Card(
-                color: Colors.green,
-                elevation: 5,
-                child: Text("Gráfico"),
-              ),
-            ),
+            Chart(recentTransaction: _recentTransactions),
             TransactionList(transactions: _transactions),
             FloatingActionButton(
               onPressed: () => _openTransactionFormModal(context),

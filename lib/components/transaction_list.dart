@@ -11,8 +11,29 @@ class TransactionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
   return SizedBox(
-    height: 400,
-    child: ListView.builder(
+    height: 580,
+    child: transactions.isEmpty
+    ? Column(
+      children: [
+        const SizedBox(
+          height: 20,
+        ),
+        Text("Nenhuma despesa cadastrada!",
+        style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(
+          height: 20,
+        ),
+        SizedBox(
+          height: 300,
+          child: Image.asset(
+            "assets/waiting.png",
+            fit: BoxFit.cover,
+          ),
+        ),
+      ],
+    ) 
+    : ListView.builder(
       itemCount: transactions.length,
       itemBuilder: (context, index) {
         final transaction = transactions[index];
@@ -28,16 +49,16 @@ class TransactionList extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(
                     width: 2,
-                    color: Colors.green
+                    color: Theme.of(context).primaryColor
                   )
                 ),
                 padding: const EdgeInsets.all(10),
                 child: Text(
                   "R\$ ${transaction.value.toStringAsFixed(2)}",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
-                    color: Colors.green
+                    color: Theme.of(context).primaryColor
                   ),
                 )
               ),
