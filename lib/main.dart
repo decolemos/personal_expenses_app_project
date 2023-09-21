@@ -37,26 +37,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
 
 
-  final List<Transaction> _transactions = [
-    Transaction(
-      id: "000", 
-      title: "Conta Antiga", 
-      value: 400.00, 
-      date: DateTime.now().subtract(const Duration(days: 33))
-    ),
-    Transaction(
-      id: "001", 
-      title: "Novo Tênis de corrida", 
-      value: 310.76, 
-      date: DateTime.now().subtract(const Duration(days: 3))
-    ),
-    Transaction(
-      id: "002", 
-      title: "Conta de luz", 
-      value: 211.30, 
-      date: DateTime.now().subtract(const Duration(days: 4))
-    ),
-  ];
+  final List<Transaction> _transactions = [];
+  bool _showChart = false;
 
   List<Transaction> get _recentTransactions {
     return _transactions.where((transaction) {
@@ -66,18 +48,24 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
-  void _addTransaction(String title, double value) {
+  void _addTransaction(String title, double value, DateTime date) {
     final newTransaction = Transaction(
       id: Random().nextDouble().toString(), 
       title: title, 
       value: value, 
-      date: DateTime.now()
+      date: date
     );
 
     setState(() {
       _transactions.add(newTransaction);
     });
     Navigator.pop(context);
+  }
+
+  _removeTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((transaction) => transaction.id == id);
+    });
   }
 
   void _openTransactionFormModal(BuildContext context) {
@@ -92,28 +80,83 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final appBar = AppBar(
+      backgroundColor: Theme.of(context).primaryColor,
+      title: const Text("Despesas Pessoais"),
+      centerTitle: (isLandscape ? false : true),
+      actions: [
+        if(isLandscape)
+        IconButton(
+          onPressed: () {
+            setState(() {
+              _showChart = !_showChart;
+            });
+          },
+          icon: Icon(_showChart ? Icons.list : Icons.pie_chart)
+        ),
+        IconButton(
+          onPressed: () => _openTransactionFormModal(context),
+          icon: const Icon(Icons.add)
+        ),
+      ],
+    );
+
+    final availableHeight = MediaQuery.of(context).size.height
+     - appBar.preferredSize.height - MediaQuery.of(context).padding.top;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Despesas Pessoais"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: () => _openTransactionFormModal(context),
-            icon: const Icon(Icons.add)
-          )
-        ],
-      ),
+      appBar: appBar,
       body: SingleChildScrollView(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Chart(recentTransaction: _recentTransactions),
-            TransactionList(transactions: _transactions),
-            FloatingActionButton(
-              onPressed: () => _openTransactionFormModal(context),
-              child: const Icon(Icons.add),
-            )
+          children: <Widget> [
+            // if(isLandscape)
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.center,
+            //   children: [
+            //     const Text("Exibir Gráfico"),
+            //     Switch(
+            //       value: _showChart, 
+            //       onChanged: (value) {
+            //         setState(() {
+            //           _showChart = value;
+            //         });
+            //       },
+            //     ),
+            //   ],
+            // ),
+            if(_showChart || !isLandscape)
+            Column(
+              children: [
+                SizedBox(
+                  height: availableHeight * (isLandscape ? 0.7 : 0.30),
+                  child: Chart(recentTransaction: _recentTransactions)
+                ),
+                if(isLandscape)
+                FloatingActionButton(
+                  onPressed: () => _openTransactionFormModal(context),
+                  child: const Icon(Icons.add),
+                ),
+              ],
+            ),
+            if(!_showChart || !isLandscape)
+            SizedBox(
+              height: availableHeight * 0.70,
+              child: Stack(
+                children: [
+                  TransactionList(transactions: _transactions, onRemove: _removeTransaction),
+                  Container(
+                    margin: const EdgeInsets.all(5),
+                    alignment: Alignment.bottomCenter,
+                    child: FloatingActionButton(
+                      onPressed: () => _openTransactionFormModal(context),
+                      child: const Icon(Icons.add),
+                    ),
+                  )
+                ]
+              )
+            ),
           ],
         ),
       ),
